@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DAR Remote Attendance</title>
+
+<style>
+body{
+ font-family:Arial, sans-serif;
+ background:#f3f5f7;
+ padding:20px;
+ max-width:420px;
+ margin:auto;
+}
+
+.card{
+ background:white;
+ border-radius:16px;
+ padding:18px;
+ margin-bottom:15px;
+ box-shadow:0 8px 20px rgba(0,0,0,.06);
+}
+
+h2{margin:0}
+
+input{
+ width:100%;
+ padding:12px;
+ margin-top:10px;
+ border-radius:10px;
+ border:1px solid #ddd;
+}
+
+.btn{
+ background:#1faa77;
+ color:white;
+ border:none;
+ padding:16px;
+ width:100%;
+ border-radius:14px;
+ font-size:18px;
+ margin-top:12px;
+ cursor:pointer;
+}
+
+.badge{
+ background:#f3d9a4;
+ padding:6px 12px;
+ border-radius:20px;
+ float:right;
+ font-size:14px;
+}
+
+.avatar{
+ width:50px;
+ height:50px;
+ border-radius:50%;
+ background:#7a6df0;
+ color:white;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:22px;
+}
+
+.history{
+ border-top:1px solid #eee;
+ margin-top:10px;
+ padding-top:10px;
+ font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginCard" class="card">
+<h3>Employee Login</h3>
+<input id="emp" placeholder="Employee ID">
+<button class="btn" onclick="login()">Login</button>
+<p id="loginMsg"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none">
+
+<h2>Attendance</h2>
+<p id="today"></p>
+
+<div class="card">
+<div style="display:flex;gap:12px;">
+<div class="avatar" id="avatar">E</div>
+<div>
+<b id="empName"></b><br>
+<small id="empEmail">Employee</small>
+</div>
+</div>
+</div>
+
+<div class="card">
+<b>TODAY'S STATUS</b>
+<span class="badge" id="statusBadge">Not Started</span>
+
+<button id="clockBtn" class="btn" onclick="clockAction()">
+Clock In
+</button>
+
+<p id="msg"></p>
+</div>
+
+<div class="card">
+<b>RECENT HISTORY</b>
+<div id="history"></div>
+</div>
+
+</div>
+
+<script>
+/* ===============================
+   CONFIG (YOUR SUPABASE)
+================================*/
+const FUNCTION_URL =
+"https://ytfpiyfapvybihlngxks.functions.supabase.co/log-attendance";
+
+/* ===============================
+   DEVICE CHECK
+================================*/
+const isMobile =
+/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+
+/* ===============================
+   DATE
+================================*/
+document.getElementById("today").innerText =
+new Date().toDateString();
+
+/* ===============================
+   DEVICE ID
+================================*/
+function deviceId(){
+ let id = localStorage.device_id;
+ if(!id){
+   id = crypto.randomUUID();
+   localStorage.device_id=id;
+ }
+ return id;
+}
+
+/* ===============================
+   LOGIN
+================================*/
+function login(){
+
+ const emp=document.getElementById("emp").value.trim();
+
+ if(!emp){
+   document.getElementById("loginMsg").innerText="Enter Employee ID";
+   return;
+ }
+
+ localStorage.emp_id=emp;
+
+ document.getElementById("loginCard").style.display="none";
+ document.getElementById("dashboard").style.display="block";
+
+ document.getElementById("empName").innerText=emp;
+ document.getElementById("avatar").innerText=emp[0];
+
+ loadHistory();
+}
+
+/* ===============================
+   GPS
+================================*/
+function getGPS(){
+ return new Promise((resolve,reject)=>{
+  navigator.geolocation.getCurrentPosition(
+   pos=>resolve(pos.coords),
+   reject,
+   {
+    enableHighAccuracy:true,
+    timeout:10000,
+    maximumAge:0
+   }
+  );
+ });
+}
+
+/* ===============================
+   CLOCK IN / OUT
+================================*/
+async function clockAction(){
+
+ if(!isMobile){
+   alert("Clock-in allowed only on registered mobile device.");
+   return;
+ }
+
+ const emp_id=localStorage.emp_id;
+ if(!emp_id){
+   alert("Login first");
+   return;
+ }
+
+ document.getElementById("msg").innerText="Getting GPS...";
+
+ try{
+
+ const gps=await getGPS();
+
+ const res=await fetch(FUNCTION_URL,{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({
+   emp_id,
+   device_id:deviceId(),
+   latitude:gps.latitude,
+   longitude:gps.longitude,
+   accuracy:gps.accuracy
+  })
+ });
+
+ const txt=await res.text();
+
+ document.getElementById("msg").innerText=txt;
+ document.getElementById("statusBadge").innerText="Active";
+
+ addHistory(new Date().toLocaleTimeString());
+
+ }catch(e){
+   document.getElementById("msg").innerText="GPS failed";
+ }
+
+}
+
+/* ===============================
+   HISTORY (LOCAL VIEW)
+================================*/
+function addHistory(time){
+ const h=document.getElementById("history");
+
+ const div=document.createElement("div");
+ div.className="history";
+ div.innerHTML=`
+  <b>${localStorage.emp_id}</b><br>
+  Clock In — ${time}
+ `;
+
+ h.prepend(div);
+}
+
+function loadHistory(){
+ document.getElementById("history").innerHTML=
+ "<small>No records yet</small>";
+}
+
+/* AUTO LOGIN */
+if(localStorage.emp_id){
+ login();
+}
+</script>
+
+</body>
+</html>
