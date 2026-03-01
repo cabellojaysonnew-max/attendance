@@ -1,36 +1,88 @@
 
+:root{
+ --green:#1faa77;
+ --bg:#f3f5f7;
+ --card:#ffffff;
+ --text:#1f2937;
+}
+
 body{
- font-family:Arial;
- background:#f3f5f7;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+ background:var(--bg);
+ margin:0;
+ padding:20px;
  max-width:420px;
  margin:auto;
- padding:20px;
+ color:var(--text);
 }
+
 .card{
- background:white;
- padding:15px;
- border-radius:14px;
- margin:10px 0;
- box-shadow:0 6px 15px rgba(0,0,0,.08);
+ background:var(--card);
+ border-radius:18px;
+ padding:18px;
+ margin-bottom:16px;
+ box-shadow:0 8px 20px rgba(0,0,0,.06);
+ animation:fadeIn .35s ease;
 }
+
 button{
- background:#1faa77;
+ background:var(--green);
  color:white;
  border:none;
- padding:14px;
+ padding:16px;
  width:100%;
- border-radius:12px;
+ border-radius:14px;
+ font-size:16px;
+ cursor:pointer;
+ transition:.15s;
 }
+
+button:active{ transform:scale(.97); }
+
 input{
  width:100%;
- padding:10px;
+ padding:14px;
  margin-top:10px;
- border-radius:8px;
- border:1px solid #ccc;
+ border-radius:12px;
+ border:1px solid #ddd;
+ font-size:15px;
 }
+
+.status{
+ float:right;
+ background:#fde68a;
+ padding:5px 12px;
+ border-radius:20px;
+ font-size:13px;
+}
+
+.avatar{
+ width:48px;
+ height:48px;
+ border-radius:50%;
+ background:#7c6df1;
+ color:white;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-weight:bold;
+ font-size:20px;
+}
+
+.row{
+ display:flex;
+ align-items:center;
+ gap:12px;
+}
+
 .log{
  border-top:1px solid #eee;
- margin-top:8px;
- padding-top:8px;
+ padding-top:10px;
+ margin-top:10px;
  font-size:14px;
+}
+
+@keyframes fadeIn{
+ from{opacity:0;transform:translateY(6px)}
+ to{opacity:1;transform:translateY(0)}
 }

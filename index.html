@@ -3,44 +3,29 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DAR Field Attendance</title>
-<link rel="stylesheet" href="style.css">
+<title>DAR Attendance</title>
+
+<script>
+const emp = localStorage.getItem("employee");
+if(emp){
+  window.location.replace("dashboard.html");
+}else{
+  window.location.replace("login.html");
+}
+</script>
+
+<style>
+body{
+ font-family:Arial;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ height:100vh;
+ background:#f3f5f7;
+}
+</style>
 </head>
-
 <body>
-
-<div id="login">
-<h3>Employee Login</h3>
-<input id="emp_id" placeholder="Employee ID">
-<input id="pass" type="password" placeholder="Password">
-<button onclick="login()">LOGIN</button>
-<p id="loginMsg"></p>
-</div>
-
-<div id="dashboard" hidden>
-
-<h2>Attendance</h2>
-
-<div class="card">
-<b id="empName"></b><br>
-<span id="empPosition"></span>
-</div>
-
-<div class="card">
-<button onclick="logAttendance()">CLOCK IN / OUT</button>
-<p id="status"></p>
-</div>
-
-<div class="card">
-<h4>Mobile Logs Only</h4>
-<div id="logs"></div>
-</div>
-
-</div>
-
-<script type="module" src="login.js"></script>
-<script type="module" src="dashboard.js"></script>
-<script src="offline.js"></script>
-
+Loading...
 </body>
 </html>
