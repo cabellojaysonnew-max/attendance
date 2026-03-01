@@ -1,46 +1,13 @@
+
 <!DOCTYPE html>
 <html>
-<body style="font-family:Arial">
-
-<h2>DATABASE TEST</h2>
-
-<button onclick="testInsert()">TEST INSERT</button>
-
-<p id="out"></p>
-
-<script type="module">
-
-import { createClient }
-from "https://esm.sh/@supabase/supabase-js@2";
-
-const supabase = createClient(
-"https://ytfpiyfapvybihlngxks.supabase.co",
-"sb_publishable_poSZUQ9HI4wcY9poEo5b1w_Z-pAJbKo"
-);
-
-window.testInsert = async () => {
-
-out.innerText = "Sending insert...";
-
-const result = await supabase
-.from("attendance_logs")
-.insert({
-  emp_id: "TEST",
-  status: "TEST",
-  device_type: "DEBUG"
-});
-
-console.log(result);
-
-if(result.error){
-  out.innerText =
-    "❌ DATABASE ERROR:\n" + result.error.message;
-}else{
-  out.innerText = "✅ INSERT SUCCESS";
-}
-
-};
-
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DAR Attendance</title>
+<script>
+const emp = localStorage.getItem("employee");
+location.replace(emp ? "dashboard.html" : "login.html");
 </script>
-</body>
+</head>
+<body>Loading...</body>
 </html>
