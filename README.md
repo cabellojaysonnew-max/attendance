@@ -1,14 +1,15 @@
 
-DAR Attendance System (Flat Version)
+DAR Attendance Final System
 
 Features:
 - Login using employees table
+- System automatically sets mobile_device
 - Mobile-only logging
-- Laptop view allowed
+- Laptop view only (KIOSK_PC)
 - Max 4 logs/day (IN OUT IN OUT)
-- Automatic location name detection
-- Offline capture + auto upload
-- Device lock (first mobile only)
+- Automatic place name detection
+- Offline logging + auto upload
+- Writes device_id into attendance_logs
 
-Upload all files directly to GitHub (no folders).
+Upload files directly to repository (no subfolders).
 Deploy Edge Function separately.

@@ -15,22 +15,29 @@ const body=await req.json();
 
 const {emp_id,device_id,latitude,longitude,accuracy}=body;
 
+/* EMPLOYEE CHECK */
 const {data:emp}=await supabase
 .from("employees")
 .select("*")
 .eq("emp_id",emp_id)
 .single();
 
-if(!emp) return new Response("Invalid",{status:401});
+if(!emp) return new Response("Invalid employee",{status:401});
+
+/* DEVICE LOCK */
+if(device_id==="KIOSK_PC")
+ return new Response("Laptop logging not allowed",{status:403});
 
 if(!emp.mobile_device){
  await supabase.from("employees")
  .update({mobile_device:device_id})
  .eq("emp_id",emp_id);
-}else if(emp.mobile_device!==device_id){
+}
+else if(emp.mobile_device!==device_id){
  return new Response("Unauthorized device",{status:403});
 }
 
+/* DAILY LIMIT */
 const today=new Date().toISOString().slice(0,10);
 
 const {data:logsToday}=await supabase
@@ -49,6 +56,7 @@ if(count===1) log_type="OUT";
 if(count===2) log_type="IN";
 if(count===3) log_type="OUT";
 
+/* LOCATION NAME */
 let place_name="Unknown";
 
 try{
@@ -61,6 +69,7 @@ try{
             (g.address.city||g.address.town||"");
 }catch{}
 
+/* INSERT LOG */
 await supabase.from("attendance_logs").insert({
  emp_id,
  device_id,

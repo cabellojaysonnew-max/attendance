@@ -8,6 +8,9 @@ const isMobile =
 /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
 
 function deviceId(){
+
+ if(!isMobile) return "KIOSK_PC";
+
  let id = localStorage.device_id;
  if(!id){
    id = crypto.randomUUID();
@@ -74,12 +77,12 @@ window.loadLogs = async function(){
   .from("attendance_logs")
   .select("*")
   .eq("emp_id",emp.emp_id)
-  .eq("device_type","MOBILE_WEB")
+  .neq("device_id","KIOSK_PC")
   .order("log_time",{ascending:false})
   .limit(5);
 
  if(!data?.length){
-   logs.innerHTML="<small>No records</small>";
+   logs.innerHTML="<small>No mobile logs</small>";
    return;
  }
 
