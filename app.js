@@ -31,9 +31,7 @@ if(empStored && location.pathname.includes("dashboard")){
 }
 
 async function login(){
-
  msg.innerText="Logging in...";
-
  const {data,error}=await supabase
  .from("employees")
  .select("*")
@@ -60,7 +58,7 @@ async function clock(){
 
  try{
 
- logStep("1️⃣ Button clicked");
+ logStep("Button clicked");
 
  const gps=await new Promise((resolve,reject)=>{
  navigator.geolocation.getCurrentPosition(
@@ -70,7 +68,7 @@ async function clock(){
  );
  });
 
- logStep("2️⃣ GPS OK");
+ logStep("GPS OK");
 
  const emp=JSON.parse(localStorage.employee);
 
@@ -82,7 +80,7 @@ async function clock(){
    accuracy:gps.accuracy
  };
 
- logStep("3️⃣ Sending request");
+ logStep("Sending request");
 
  const res=await fetch(FUNCTION_URL,{
   method:"POST",
@@ -90,7 +88,7 @@ async function clock(){
   body:JSON.stringify(payload)
  });
 
- logStep("4️⃣ Response "+res.status);
+ logStep("Response "+res.status);
 
  const text=await res.text();
  if(!res.ok) throw new Error(text);
@@ -103,7 +101,7 @@ async function clock(){
 
  }catch(e){
    error.innerText=e.message;
-   logStep("❌ "+e.message);
+   logStep("ERROR: "+e.message);
  }
 }
 
@@ -115,14 +113,12 @@ async function loadLogs(){
  .from("attendance_logs")
  .select("*")
  .eq("emp_id",emp.emp_id)
- .not("status","is",null)
- .not("latitude","is",null)
  .order("log_time",{ascending:false})
  .limit(5);
 
  logs.innerHTML=(data||[]).map(l=>`
  <div class="log">
- <b>${l.status}</b> — ${new Date(l.log_time).toLocaleString()}
+ <b>${l.status||"LOG"}</b> — ${new Date(l.log_time).toLocaleString()}
  </div>`).join("");
 }
 
