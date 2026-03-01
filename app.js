@@ -1,10 +1,9 @@
 
-import { supabase } from "./supabase.js";
-
 const FUNCTION_URL="https://ytfpiyfapvybihlngxks.functions.supabase.co/log-attendance";
 
 function logStep(msg){
  const box=document.getElementById("debug");
+ if(!box) return;
  box.textContent += "\n"+msg;
  box.scrollTop=box.scrollHeight;
 }
@@ -31,7 +30,7 @@ if(empStored && location.pathname.includes("dashboard")){
  loadLogs();
 }
 
-window.login=async function(){
+async function login(){
 
  msg.innerText="Logging in...";
 
@@ -49,12 +48,12 @@ window.login=async function(){
 
  localStorage.employee=JSON.stringify(data);
  location.href="dashboard.html";
-};
+}
 
-window.clock=async function(){
+async function clock(){
 
  const debug=document.getElementById("debug");
- debug.textContent="START CLOCK PROCESS";
+ if(debug) debug.textContent="START CLOCK PROCESS";
 
  status.innerText="";
  error.innerText="";
@@ -62,12 +61,6 @@ window.clock=async function(){
  try{
 
  logStep("1️⃣ Button clicked");
-
- if(!navigator.onLine){
-   throw new Error("No internet connection");
- }
-
- logStep("2️⃣ Requesting GPS");
 
  const gps=await new Promise((resolve,reject)=>{
  navigator.geolocation.getCurrentPosition(
@@ -77,7 +70,7 @@ window.clock=async function(){
  );
  });
 
- logStep("GPS OK lat="+gps.latitude);
+ logStep("2️⃣ GPS OK");
 
  const emp=JSON.parse(localStorage.employee);
 
@@ -97,31 +90,22 @@ window.clock=async function(){
   body:JSON.stringify(payload)
  });
 
- logStep("4️⃣ Response status="+res.status);
+ logStep("4️⃣ Response "+res.status);
 
  const text=await res.text();
-
- if(!res.ok){
-   logStep("EDGE ERROR: "+text);
-   throw new Error(text);
- }
+ if(!res.ok) throw new Error(text);
 
  const data=JSON.parse(text);
-
- logStep("5️⃣ Database insert success");
 
  status.innerText=data.status+" recorded ✔";
 
  loadLogs();
 
  }catch(e){
-
- logStep("❌ ERROR: "+e.message);
-
- error.innerText=e.message;
- status.innerText="";
+   error.innerText=e.message;
+   logStep("❌ "+e.message);
  }
-};
+}
 
 async function loadLogs(){
 
@@ -131,13 +115,16 @@ async function loadLogs(){
  .from("attendance_logs")
  .select("*")
  .eq("emp_id",emp.emp_id)
- .eq("device_type","MOBILE_WEB")
+ .not("status","is",null)
+ .not("latitude","is",null)
  .order("log_time",{ascending:false})
  .limit(5);
 
  logs.innerHTML=(data||[]).map(l=>`
  <div class="log">
- <b>${l.status}</b> — ${new Date(l.log_time).toLocaleString()}<br>
- ${l.place_name||""}
+ <b>${l.status}</b> — ${new Date(l.log_time).toLocaleString()}
  </div>`).join("");
 }
+
+window.login=login;
+window.clock=clock;

@@ -21,6 +21,9 @@ serve(async(req)=>{
 
  const {emp_id,device_id,latitude,longitude,accuracy}=await req.json();
 
+ if(device_id==="KIOSK_PC")
+   throw new Error("Desktop attendance not allowed");
+
  const {data:emp}=await supabase
  .from("employees")
  .select("*")
@@ -68,5 +71,4 @@ serve(async(req)=>{
  }catch(err){
   return new Response(err.message,{status:400,headers:cors});
  }
-
 });
