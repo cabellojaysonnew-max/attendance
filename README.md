@@ -1,16 +1,13 @@
 
-DAR ATTENDANCE ENTERPRISE VERSION
+DAR Attendance Debug Version
 
-FEATURES:
-✔ DAR Green & Gold UI
-✔ Permanent mobile device binding
-✔ Anti-GPS spoof detection
-✔ Offline logging queue (auto sync)
-✔ Mobile-only logs
-✔ Max 4 logs/day
+Includes visible error/debug mechanism.
 
-DEPLOY:
-1. Upload HTML/CSS/JS files to hosting.
-2. Rename log-attendance.ts -> index.ts
-3. Place inside supabase/functions/log-attendance/
-4. Run: supabase functions deploy log-attendance
+The System Status panel shows:
+1. Button click
+2. GPS result
+3. API request
+4. Edge response
+5. Database insert
+
+Use this version to diagnose why attendance is not saving.
