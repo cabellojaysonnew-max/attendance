@@ -2,7 +2,6 @@
 import { supabase } from "./supabase.js";
 
 const FUNCTION_URL="https://ytfpiyfapvybihlngxks.functions.supabase.co/log-attendance";
-
 const isMobile=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
 
 function deviceId(){
@@ -12,8 +11,8 @@ function deviceId(){
  return id;
 }
 
-/* AUTO SESSION */
 const empStored=localStorage.employee;
+
 if(empStored && location.pathname.includes("login")){
  location.href="dashboard.html";
 }
@@ -22,13 +21,14 @@ if(empStored && location.pathname.includes("dashboard")){
  const emp=JSON.parse(empStored);
  empName.innerText=emp.full_name;
  empPosition.innerText=emp.position;
- avatar.innerText=emp.full_name[0];
  loadLogs();
 }
 
-/* LOGIN */
-window.login=async()=>{
+window.login = async function(){
 
+ msg.innerText="";
+
+ try{
  const {data,error}=await supabase
  .from("employees")
  .select("*")
@@ -36,37 +36,49 @@ window.login=async()=>{
  .eq("pass",pass.value)
  .single();
 
- if(error){
-  msg.innerText="Invalid login";
-  return;
+ if(error || !data){
+   msg.innerText="Invalid credentials";
+   return;
  }
 
  localStorage.employee=JSON.stringify(data);
  location.href="dashboard.html";
+
+ }catch(e){
+   msg.innerText="Connection error";
+ }
 };
 
-/* GPS */
 function freshGPS(){
  return new Promise((res,rej)=>{
  navigator.geolocation.getCurrentPosition(
   p=>res(p.coords),
-  rej,
+  err=>rej(err),
   {enableHighAccuracy:true,maximumAge:0,timeout:15000}
  );
  });
 }
 
-/* LOG */
-window.logAttendance=async()=>{
+window.logAttendance = async function(){
 
- if(!isMobile){
-  alert("Mobile device required.");
-  return;
+ error.innerText="";
+ status.innerText="Preparing...";
+
+ if(!navigator.onLine){
+   error.innerText="No internet connection";
+   return;
  }
 
- status.innerText="Getting GPS...";
+ if(!isMobile){
+   error.innerText="Mobile device required";
+   return;
+ }
 
+ try{
+
+ status.innerText="Getting GPS...";
  const gps=await freshGPS();
+
  const emp=JSON.parse(localStorage.employee);
 
  const body={
@@ -77,25 +89,36 @@ window.logAttendance=async()=>{
   accuracy:gps.accuracy
  };
 
+ status.innerText="Sending attendance...";
+
  const res=await fetch(FUNCTION_URL,{
   method:"POST",
   headers:{"Content-Type":"application/json"},
   body:JSON.stringify(body)
  });
 
+ if(!res.ok){
+   const txt=await res.text();
+   throw new Error(txt);
+ }
+
  const data=await res.json();
 
- status.innerText=`${data.log_type} recorded`;
- statusBadge.innerText=data.log_type;
-
+ status.innerText=data.status+" recorded ✔";
  loadLogs();
+
+ }catch(e){
+   console.error(e);
+   error.innerText=e.message || "Failed to save attendance";
+   status.innerText="";
+ }
 };
 
 async function loadLogs(){
 
  const emp=JSON.parse(localStorage.employee);
 
- const {data}=await supabase
+ const {data,error:err}=await supabase
  .from("attendance_logs")
  .select("*")
  .eq("emp_id",emp.emp_id)
@@ -103,9 +126,14 @@ async function loadLogs(){
  .order("log_time",{ascending:false})
  .limit(5);
 
+ if(err){
+   logs.innerHTML="Cannot load logs";
+   return;
+ }
+
  logs.innerHTML=(data||[]).map(l=>`
  <div class="log">
-  <b>${l.log_type}</b> — ${new Date(l.log_time).toLocaleString()}<br>
+  <b>${l.status}</b> — ${new Date(l.log_time).toLocaleString()}<br>
   ${l.place_name||"Location pending"}
  </div>`).join("");
 }

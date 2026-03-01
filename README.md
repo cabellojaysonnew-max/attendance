@@ -1,15 +1,15 @@
 
-DAR Attendance Final System
+DAR Attendance (Error Checked Version)
 
-Features:
-- Login using employees table
-- System automatically sets mobile_device
-- Mobile-only logging
-- Laptop view only (KIOSK_PC)
-- Max 4 logs/day (IN OUT IN OUT)
-- Automatic place name detection
-- Offline logging + auto upload
-- Writes device_id into attendance_logs
+Includes:
+- Full frontend error handling
+- Server validation errors
+- GPS error detection
+- Network checking
+- Database insert validation
 
-Upload files directly to repository (no subfolders).
-Deploy Edge Function separately.
+Deploy:
+1. Upload files to GitHub/Vercel.
+2. Rename log-attendance.ts -> index.ts
+3. Place in supabase/functions/log-attendance/
+4. Run: supabase functions deploy log-attendance
