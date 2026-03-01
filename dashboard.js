@@ -1,62 +1,68 @@
 
 import { supabase } from "./supabase.js";
 
-function getFreshGPS(){
+const FUNCTION_URL =
+"https://ytfpiyfapvybihlngxks.functions.supabase.co/log-attendance";
+
+const isMobile =
+/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+
+function deviceId(){
+ let id = localStorage.device_id;
+ if(!id){
+   id = crypto.randomUUID();
+   localStorage.device_id=id;
+ }
+ return id;
+}
+
+function freshGPS(){
  return new Promise((resolve,reject)=>{
    navigator.geolocation.getCurrentPosition(
      p=>resolve(p.coords),
      reject,
-     {
-       enableHighAccuracy:true,
-       maximumAge:0,
-       timeout:15000
-     }
+     { enableHighAccuracy:true, maximumAge:0, timeout:15000 }
    );
  });
 }
 
-async function getPlace(lat,lon){
- try{
- const res = await fetch(
-  `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
- );
- const data = await res.json();
- return data.display_name || "Unknown location";
- }catch{
-  return "Location lookup failed";
- }
-}
-
 window.logAttendance = async ()=>{
 
- const status = document.getElementById("status");
- status.innerText="Capturing GPS...";
-
- const gps = await getFreshGPS();
-
- const place = navigator.onLine
-   ? await getPlace(gps.latitude,gps.longitude)
-   : "Offline (location pending)";
-
- const emp = JSON.parse(localStorage.employee);
-
- const log = {
-   emp_id:emp.emp_id,
-   latitude:gps.latitude,
-   longitude:gps.longitude,
-   place_name:place,
-   device_type:"MOBILE_WEB"
- };
-
- if(!navigator.onLine){
-   window.saveOffline(log);
-   status.innerText="Saved offline";
+ if(!isMobile){
+   alert("Logging allowed only on registered mobile device.");
    return;
  }
 
- await supabase.from("attendance_logs").insert(log);
+ status.innerText="Refreshing GPS...";
 
- status.innerText="Attendance recorded";
+ const gps = await freshGPS();
+ const emp = JSON.parse(localStorage.employee);
+
+ const log={
+   emp_id:emp.emp_id,
+   device_id:deviceId(),
+   latitude:gps.latitude,
+   longitude:gps.longitude,
+   accuracy:gps.accuracy
+ };
+
+ if(!navigator.onLine){
+   saveOffline(log);
+   status.innerText="Saved offline ✔";
+   return;
+ }
+
+ const res = await fetch(FUNCTION_URL,{
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify(log)
+ });
+
+ const data = await res.json();
+
+ status.innerText =
+ `${data.log_type} recorded at ${data.place_name}`;
+
  loadLogs();
 };
 
@@ -72,17 +78,14 @@ window.loadLogs = async function(){
   .order("log_time",{ascending:false})
   .limit(5);
 
- const logsDiv = document.getElementById("logs");
-
- if(!data || !data.length){
-   logsDiv.innerHTML="<small>No records</small>";
+ if(!data?.length){
+   logs.innerHTML="<small>No records</small>";
    return;
  }
 
- logsDiv.innerHTML = data.map(l=>`
-   <div class="log">
-     ${new Date(l.log_time).toLocaleString()}<br>
-     ${l.place_name}
-   </div>
- `).join("");
+ logs.innerHTML=data.map(l=>`
+  <div class="log">
+   ${l.log_type} — ${new Date(l.log_time).toLocaleString()}<br>
+   ${l.place_name}
+  </div>`).join("");
 };

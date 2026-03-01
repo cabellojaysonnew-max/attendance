@@ -1,7 +1,7 @@
 
 {
- "name":"DAR Attendance",
- "display":"standalone",
- "start_url":"/",
- "background_color":"#0b5d3b"
+"name":"DAR Attendance",
+"display":"standalone",
+"start_url":"/",
+"background_color":"#0b5d3b"
 }

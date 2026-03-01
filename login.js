@@ -1,10 +1,17 @@
 
 import { supabase } from "./supabase.js";
 
-window.login = async () => {
+window.addEventListener("load",()=>{
+ const saved = localStorage.employee;
+ if(saved){
+   showDashboard(JSON.parse(saved));
+ }
+});
 
- const emp_id_val = document.getElementById("emp_id").value;
- const pass_val = document.getElementById("pass").value;
+window.login = async ()=>{
+
+ const emp_id_val = emp_id.value;
+ const pass_val = pass.value;
 
  const { data, error } = await supabase
    .from("employees")
@@ -14,17 +21,18 @@ window.login = async () => {
    .single();
 
  if(error){
-   document.getElementById("loginMsg").innerText="Invalid login";
+   loginMsg.innerText="Invalid login";
    return;
  }
 
  localStorage.employee = JSON.stringify(data);
-
- document.getElementById("login").hidden=true;
- document.getElementById("dashboard").hidden=false;
-
- document.getElementById("empName").innerText=data.full_name;
- document.getElementById("empPosition").innerText=data.position;
-
- window.loadLogs();
+ showDashboard(data);
 };
+
+function showDashboard(emp){
+ login.hidden=true;
+ dashboard.hidden=false;
+ empName.innerText=emp.full_name;
+ empPosition.innerText=emp.position;
+ loadLogs();
+}
