@@ -1,16 +1,16 @@
 
-DAR ATTENDANCE SYSTEM (FINAL DEPLOYMENT)
+DAR ATTENDANCE ENTERPRISE VERSION
 
 FEATURES:
-- Mobile login
-- GPS required logging
-- One-device registration
-- Max 4 logs/day (IN OUT IN OUT)
-- Reverse geolocation
-- DAR Green + Gold UI
+✔ DAR Green & Gold UI
+✔ Permanent mobile device binding
+✔ Anti-GPS spoof detection
+✔ Offline logging queue (auto sync)
+✔ Mobile-only logs
+✔ Max 4 logs/day
 
 DEPLOY:
-1. Upload HTML/CSS/JS files to hosting (GitHub Pages/Vercel).
+1. Upload HTML/CSS/JS files to hosting.
 2. Rename log-attendance.ts -> index.ts
-3. Place inside: supabase/functions/log-attendance/
+3. Place inside supabase/functions/log-attendance/
 4. Run: supabase functions deploy log-attendance
