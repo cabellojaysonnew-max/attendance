@@ -2,7 +2,6 @@
 import { supabase } from "./supabase.js";
 
 const FUNCTION_URL="https://ytfpiyfapvybihlngxks.functions.supabase.co/log-attendance";
-
 const isMobile=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
 
 function deviceId(){
@@ -14,20 +13,20 @@ function deviceId(){
 
 /* AUTO SESSION */
 const empStored=localStorage.employee;
+
 if(empStored && location.pathname.includes("login")){
  location.href="dashboard.html";
 }
 
 if(empStored && location.pathname.includes("dashboard")){
  const emp=JSON.parse(empStored);
- empName.innerText=emp.full_name;
- empPosition.innerText=emp.position;
- avatar.innerText=emp.full_name[0];
+ document.getElementById("empName").innerText=emp.full_name;
+ document.getElementById("empPosition").innerText=emp.position;
  loadLogs();
 }
 
 /* LOGIN */
-window.login=async()=>{
+window.login = async function(){
 
  const {data,error}=await supabase
  .from("employees")
@@ -56,8 +55,8 @@ function freshGPS(){
  });
 }
 
-/* LOG */
-window.logAttendance=async()=>{
+/* CLOCK IN OUT */
+window.logAttendance = async function(){
 
  if(!isMobile){
   alert("Mobile device required.");
@@ -85,8 +84,8 @@ window.logAttendance=async()=>{
 
  const data=await res.json();
 
- status.innerText=`${data.log_type} recorded`;
- statusBadge.innerText=data.log_type;
+ status.innerText=data.status + " recorded";
+ statusBadge.innerText=data.status;
 
  loadLogs();
 };
@@ -105,7 +104,7 @@ async function loadLogs(){
 
  logs.innerHTML=(data||[]).map(l=>`
  <div class="log">
-  <b>${l.log_type}</b> — ${new Date(l.log_time).toLocaleString()}<br>
+  <b>${l.status}</b> — ${new Date(l.log_time).toLocaleString()}<br>
   ${l.place_name||"Location pending"}
  </div>`).join("");
 }
