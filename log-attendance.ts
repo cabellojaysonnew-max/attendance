@@ -1,80 +1,93 @@
-
 import { serve } from "https://deno.land/std/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
-serve(async(req)=>{
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
 
-try{
+serve(async (req) => {
 
-const supabase=createClient(
- Deno.env.get("SUPABASE_URL")!,
- Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-);
+  /* CORS PREFLIGHT */
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
 
-const {emp_id,device_id,latitude,longitude,accuracy}=await req.json();
+  try {
 
-if(!emp_id) return new Response("Missing employee",{status:400});
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-const {data:emp}=await supabase
-.from("employees")
-.select("*")
-.eq("emp_id",emp_id)
-.single();
+    const body = await req.json();
 
-if(!emp) return new Response("Employee not found",{status:401});
+    const { emp_id, device_id, latitude, longitude, accuracy } = body;
 
-if(!emp.mobile_device){
- await supabase.from("employees")
- .update({mobile_device:device_id})
- .eq("emp_id",emp_id);
-}
-else if(emp.mobile_device!==device_id){
- return new Response("Unauthorized device",{status:403});
-}
+    if (!emp_id)
+      throw new Error("Missing employee");
 
-const today=new Date().toISOString().slice(0,10);
+    /* EMPLOYEE */
+    const { data: emp } = await supabase
+      .from("employees")
+      .select("*")
+      .eq("emp_id", emp_id)
+      .single();
 
-const {data:logsToday}=await supabase
-.from("attendance_logs")
-.select("id")
-.eq("emp_id",emp_id)
-.gte("log_time",today);
+    if (!emp)
+      throw new Error("Employee not found");
 
-const count=logsToday?.length ?? 0;
+    /* BLOCK PC */
+    if (device_id === "KIOSK_PC")
+      throw new Error("Desktop logging not allowed");
 
-if(count>=4)
- return new Response("Maximum logs reached",{status:403});
+    /* DEVICE LOCK */
+    if (!emp.mobile_device) {
+      await supabase
+        .from("employees")
+        .update({ mobile_device: device_id })
+        .eq("emp_id", emp_id);
+    } else if (emp.mobile_device !== device_id) {
+      throw new Error("Unauthorized device");
+    }
 
-const status=["IN","OUT","IN","OUT"][count];
+    /* DAILY COUNT */
+    const today = new Date().toISOString().slice(0, 10);
 
-let place_name="Unknown";
+    const { data: todayLogs } = await supabase
+      .from("attendance_logs")
+      .select("id")
+      .eq("emp_id", emp_id)
+      .gte("log_time", today);
 
-try{
- const geo=await fetch(
-  `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
- );
- const g=await geo.json();
- place_name=(g.address.road||"")+" , "+
-            (g.address.city||g.address.town||"");
-}catch{}
+    const count = todayLogs?.length ?? 0;
 
-await supabase.from("attendance_logs").insert({
- emp_id,
- device_id,
- latitude,
- longitude,
- accuracy,
- status,
- place_name,
- device_type:"MOBILE_WEB"
-});
+    if (count >= 4)
+      throw new Error("Maximum logs reached");
 
-return new Response(JSON.stringify({status,place_name}),{
- headers:{"Content-Type":"application/json"}
-});
+    const status = ["IN", "OUT", "IN", "OUT"][count];
 
-}catch(err){
- return new Response("Server error: "+err.message,{status:500});
-}
+    /* INSERT */
+    await supabase.from("attendance_logs").insert({
+      emp_id,
+      device_id,
+      latitude,
+      longitude,
+      accuracy,
+      status,
+      device_type: "MOBILE_WEB",
+    });
 
+    return new Response(
+      JSON.stringify({ status }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (err) {
+    return new Response(err.message, {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
 });
