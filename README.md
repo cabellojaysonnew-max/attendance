@@ -1,15 +1,16 @@
 
-DAR Attendance (Error Checked Version)
+DAR ATTENDANCE SYSTEM (FINAL DEPLOYMENT)
 
-Includes:
-- Full frontend error handling
-- Server validation errors
-- GPS error detection
-- Network checking
-- Database insert validation
+FEATURES:
+- Mobile login
+- GPS required logging
+- One-device registration
+- Max 4 logs/day (IN OUT IN OUT)
+- Reverse geolocation
+- DAR Green + Gold UI
 
-Deploy:
-1. Upload files to GitHub/Vercel.
+DEPLOY:
+1. Upload HTML/CSS/JS files to hosting (GitHub Pages/Vercel).
 2. Rename log-attendance.ts -> index.ts
-3. Place in supabase/functions/log-attendance/
+3. Place inside: supabase/functions/log-attendance/
 4. Run: supabase functions deploy log-attendance

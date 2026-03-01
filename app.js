@@ -1,13 +1,17 @@
 
 import { supabase } from "./supabase.js";
 
-const FUNCTION_URL="https://ytfpiyfapvybihlngxks.functions.supabase.co/log-attendance";
+const FUNCTION_URL =
+"https://ytfpiyfapvybihlngxks.functions.supabase.co/log-attendance";
+
 const isMobile=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
 
 function deviceId(){
- if(!isMobile) return "KIOSK_PC";
  let id=localStorage.device_id;
- if(!id){id=crypto.randomUUID();localStorage.device_id=id;}
+ if(!id){
+   id=crypto.randomUUID();
+   localStorage.device_id=id;
+ }
  return id;
 }
 
@@ -26,90 +30,82 @@ if(empStored && location.pathname.includes("dashboard")){
 
 window.login = async function(){
 
- msg.innerText="";
+ msg.innerText="Logging in...";
 
- try{
  const {data,error}=await supabase
- .from("employees")
- .select("*")
- .eq("emp_id",emp_id.value)
- .eq("pass",pass.value)
- .single();
+  .from("employees")
+  .select("*")
+  .eq("emp_id",emp_id.value)
+  .eq("pass",pass.value)
+  .single();
 
  if(error || !data){
-   msg.innerText="Invalid credentials";
+   msg.innerText="Invalid login";
    return;
  }
 
  localStorage.employee=JSON.stringify(data);
  location.href="dashboard.html";
-
- }catch(e){
-   msg.innerText="Connection error";
- }
 };
 
-function freshGPS(){
- return new Promise((res,rej)=>{
+function getGPS(){
+ return new Promise((resolve,reject)=>{
  navigator.geolocation.getCurrentPosition(
-  p=>res(p.coords),
-  err=>rej(err),
+  p=>resolve(p.coords),
+  ()=>reject(new Error("GPS permission denied")),
   {enableHighAccuracy:true,maximumAge:0,timeout:15000}
  );
  });
 }
 
-window.logAttendance = async function(){
+window.clock = async function(){
 
+ status.innerText="";
  error.innerText="";
- status.innerText="Preparing...";
 
- if(!navigator.onLine){
-   error.innerText="No internet connection";
+ if(!isMobile){
+   error.innerText="Use mobile phone only.";
    return;
  }
 
- if(!isMobile){
-   error.innerText="Mobile device required";
+ if(!navigator.onLine){
+   error.innerText="No internet connection.";
    return;
  }
 
  try{
 
  status.innerText="Getting GPS...";
- const gps=await freshGPS();
 
+ const gps=await getGPS();
  const emp=JSON.parse(localStorage.employee);
-
- const body={
-  emp_id:emp.emp_id,
-  device_id:deviceId(),
-  latitude:gps.latitude,
-  longitude:gps.longitude,
-  accuracy:gps.accuracy
- };
 
  status.innerText="Sending attendance...";
 
  const res=await fetch(FUNCTION_URL,{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify(body)
+   method:"POST",
+   headers:{ "Content-Type":"application/json" },
+   body:JSON.stringify({
+     emp_id:emp.emp_id,
+     device_id:deviceId(),
+     latitude:gps.latitude,
+     longitude:gps.longitude,
+     accuracy:gps.accuracy
+   })
  });
 
- if(!res.ok){
-   const txt=await res.text();
-   throw new Error(txt);
- }
+ const text=await res.text();
 
- const data=await res.json();
+ if(!res.ok) throw new Error(text);
+
+ const data=JSON.parse(text);
 
  status.innerText=data.status+" recorded ✔";
+
  loadLogs();
 
  }catch(e){
-   console.error(e);
-   error.innerText=e.message || "Failed to save attendance";
+   error.innerText=e.message;
    status.innerText="";
  }
 };
@@ -118,22 +114,16 @@ async function loadLogs(){
 
  const emp=JSON.parse(localStorage.employee);
 
- const {data,error:err}=await supabase
- .from("attendance_logs")
- .select("*")
- .eq("emp_id",emp.emp_id)
- .neq("device_id","KIOSK_PC")
- .order("log_time",{ascending:false})
- .limit(5);
-
- if(err){
-   logs.innerHTML="Cannot load logs";
-   return;
- }
+ const {data}=await supabase
+  .from("attendance_logs")
+  .select("*")
+  .eq("emp_id",emp.emp_id)
+  .order("log_time",{ascending:false})
+  .limit(5);
 
  logs.innerHTML=(data||[]).map(l=>`
- <div class="log">
-  <b>${l.status}</b> — ${new Date(l.log_time).toLocaleString()}<br>
-  ${l.place_name||"Location pending"}
- </div>`).join("");
+  <div class="log">
+   <b>${l.status}</b> — ${new Date(l.log_time).toLocaleString()}<br>
+   ${l.place_name || ""}
+  </div>`).join("");
 }

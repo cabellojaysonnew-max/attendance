@@ -4,8 +4,11 @@
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="style.css">
+<title>DAR Attendance</title>
 </head>
 <body>
+
+<div class="container">
 
 <h2>Attendance</h2>
 
@@ -15,14 +18,16 @@
 </div>
 
 <div class="card">
-<button onclick="logAttendance()">CLOCK IN / OUT</button>
-<p id="status"></p>
+<button onclick="clock()">CLOCK IN / OUT</button>
+<p id="status" class="success"></p>
 <p id="error" class="error"></p>
 </div>
 
 <div class="card">
-<h3>Recent Mobile Logs</h3>
+<h3>Recent Logs</h3>
 <div id="logs"></div>
+</div>
+
 </div>
 
 <script type="module" src="app.js"></script>
