@@ -1,12 +1,12 @@
 
 body{font-family:Arial;background:#f4f6f4;margin:0;}
 .container{max-width:420px;margin:auto;padding:20px;}
-h2{text-align:center;color:#0b5d3b;}
 .card{
  background:white;padding:18px;border-radius:14px;margin-top:15px;
  border-top:5px solid #c9a227;
  box-shadow:0 6px 14px rgba(0,0,0,.08);
 }
+h2{text-align:center;color:#0b5d3b;}
 input{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:1px solid #ccc;}
 button{
  width:100%;padding:14px;margin-top:12px;background:#0b5d3b;
@@ -14,4 +14,8 @@ button{
 }
 .success{color:#0b5d3b;font-weight:bold;}
 .error{color:#b91c1c;font-weight:bold;}
-.log{border-top:1px solid #eee;margin-top:10px;padding-top:10px;font-size:14px;}
+.log{border-top:1px solid #eee;margin-top:10px;padding-top:10px;}
+.debug{
+ background:#111;color:#0f0;padding:10px;border-radius:8px;height:140px;
+ overflow:auto;font-size:12px;
+}

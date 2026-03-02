@@ -1,6 +1,19 @@
+function saveOffline(data){
+ let logs=JSON.parse(localStorage.getItem("offline_logs")||"[]");
+ logs.push(data);
+ localStorage.setItem("offline_logs",JSON.stringify(logs));
+}
 
-window.saveOffline=function(log){
- let q=JSON.parse(localStorage.offlineLogs||"[]");
- q.push(log);
- localStorage.offlineLogs=JSON.stringify(q);
-};
+async function syncOffline(){
+ if(!navigator.onLine) return;
+
+ let logs=JSON.parse(localStorage.getItem("offline_logs")||"[]");
+
+ for(const log of logs){
+   await supabase.from("attendance_logs").insert(log);
+ }
+
+ localStorage.removeItem("offline_logs");
+}
+
+window.addEventListener("online",syncOffline);
