@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,18 +6,24 @@
 <title>DAR Attendance</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body class="login">
+<body>
 
 <div class="card">
-<h2>DAR Attendance System</h2>
+<h2>DAR Field Attendance</h2>
+
 <input id="emp_id" placeholder="Employee ID">
 <input id="password" type="password" placeholder="Password">
+
 <button onclick="login()">Login</button>
+
 <p id="msg"></p>
+<div id="debug"></div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="supabase.js"></script>
 <script src="auth.js"></script>
+
 </body>
 </html>

@@ -1,3 +1,4 @@
+
 :root{
  --dar-green:#0B6B3A;
  --dar-gold:#C9A227;
@@ -23,9 +24,27 @@ button{
  background:var(--dar-green);
  color:white;
  border:none;
- padding:15px;
+ padding:12px;
  width:100%;
  border-radius:8px;
- font-size:18px;
+ font-size:15px;
  margin-top:10px;
+ cursor:pointer;
+}
+
+input{
+ width:100%;
+ padding:10px;
+ margin-top:10px;
+ border:1px solid #ccc;
+ border-radius:6px;
+}
+
+#debug{
+ margin-top:15px;
+ padding:10px;
+ background:#fff3cd;
+ border:1px solid #ffeeba;
+ font-size:13px;
+ color:#856404;
 }

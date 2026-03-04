@@ -1,17 +1,19 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DAR Admin</title>
+<title>Admin Monitoring</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
 <div class="card">
 <h2>Admin Monitoring</h2>
+<input type="date" id="filterDate">
+<button onclick="loadLogs()">Filter</button>
 <div id="logs"></div>
+<button onclick="logout()">Logout</button>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="supabase.js"></script>
 <script src="admin.js"></script>

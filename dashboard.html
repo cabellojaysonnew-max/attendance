@@ -1,22 +1,26 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Attendance Dashboard</title>
+<title>DAR Dashboard</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <div class="card">
-<h2>Attendance</h2>
+<h2>Attendance Dashboard</h2>
+
 <button onclick="clock()">Clock In / Out</button>
-<div id="status"></div>
+<p id="status"></p>
+
+<button onclick="logout()">Logout</button>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="supabase.js"></script>
-<script src="gps.js"></script>
 <script src="attendance.js"></script>
-<script src="offline.js"></script>
+
 </body>
 </html>
