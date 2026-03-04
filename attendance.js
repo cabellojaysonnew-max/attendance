@@ -1,11 +1,10 @@
-
 if(!localStorage.getItem("user")){
- location="index.html";
+ location = "index.html";
 }
 
 function logout(){
  localStorage.clear();
- location="index.html";
+ location = "index.html";
 }
 
 function getLocalDate(){
@@ -19,12 +18,11 @@ async function clock(){
 
  const status = document.getElementById("status");
  const user = JSON.parse(localStorage.getItem("user"));
-
  const today = getLocalDate();
 
  try{
 
-   const {data:logs,error} = await supabase
+   const {data:logs, error} = await db
     .from("attendance_logs")
     .select("*")
     .eq("emp_id", user.emp_id)
@@ -45,11 +43,11 @@ async function clock(){
    const currentType = types[logs.length];
 
    const payload = {
-     emp_id:user.emp_id,
-     status:currentType
+     emp_id: user.emp_id,
+     status: currentType
    };
 
-   const {error:insertError} = await supabase
+   const {error:insertError} = await db
      .from("attendance_logs")
      .insert(payload);
 
@@ -58,7 +56,7 @@ async function clock(){
      return;
    }
 
-   status.innerText = currentType + " recorded.";
+   status.innerText = currentType + " recorded";
 
  }catch(err){
 

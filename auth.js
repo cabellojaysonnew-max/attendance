@@ -1,4 +1,3 @@
-
 async function login(){
 
  const emp_id = document.getElementById("emp_id").value.trim();
@@ -17,32 +16,29 @@ async function login(){
 
  try{
 
-   console.log("Attempting login:", emp_id);
-
-   const {data, error} = await supabase
+   const {data, error} = await db
      .from("employees")
      .select("*")
      .eq("emp_id", emp_id)
      .eq("pass", password)
      .maybeSingle();
 
-   console.log("Supabase response:", data, error);
+   console.log(data, error);
 
    if(error){
-     msg.innerText = "Database error.";
+     msg.innerText = "Database error";
      debug.innerText = error.message;
      return;
    }
 
    if(!data){
-     msg.innerText = "Invalid credentials.";
-     debug.innerText = "No matching employee found.";
+     msg.innerText = "Invalid credentials";
      return;
    }
 
    localStorage.setItem("user", JSON.stringify(data));
 
-   msg.innerText = "Login successful.";
+   msg.innerText = "Login successful";
 
    setTimeout(()=>{
       location = "dashboard.html";
@@ -50,9 +46,8 @@ async function login(){
 
  }catch(err){
 
-   msg.innerText = "System error.";
+   msg.innerText = "System error";
    debug.innerText = err.message;
-   console.error(err);
 
  }
 }
