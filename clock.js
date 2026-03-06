@@ -1,11 +1,24 @@
-
 import { supabase } from "./supabase.js"
 import { getGPS } from "./gps.js"
 import { getAddress } from "./location.js"
 
+function detectDevice(){
+
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+if(isMobile){
+return "MOBILE_WEB"
+}else{
+return "KIOSK"
+}
+
+}
+
 export async function clock(){
 
 const emp_id = localStorage.getItem("emp_id")
+
+const deviceType = detectDevice()
 
 const gps = await getGPS()
 
@@ -34,7 +47,7 @@ latitude:gps.lat,
 longitude:gps.lng,
 accuracy:gps.accuracy,
 address:address,
-device_id:"MOBILE_WEB"
+device_id:deviceType
 
 })
 
