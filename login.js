@@ -1,38 +1,47 @@
+import { supabase } from "./supabase.js"
 
-import { supabase } from "./supabase.js";
+function generateGUID(){
+return crypto.randomUUID()
+}
 
-window.addEventListener("load",()=>{
- const saved = localStorage.employee;
- if(saved){
-   showDashboard(JSON.parse(saved));
- }
-});
+window.login = async function(){
 
-window.login = async ()=>{
+const emp_id = document.getElementById("emp_id").value
+const pass = document.getElementById("pass").value
 
- const emp_id_val = emp_id.value;
- const pass_val = pass.value;
+const { data, error } = await supabase
+.from("employees")
+.select("*")
+.eq("emp_id", emp_id)
+.eq("pass", pass)
+.single()
 
- const { data, error } = await supabase
-   .from("employees")
-   .select("*")
-   .eq("emp_id", emp_id_val)
-   .eq("pass", pass_val)
-   .single();
+if(error || !data){
+alert("Invalid login")
+return
+}
 
- if(error){
-   loginMsg.innerText="Invalid login";
-   return;
- }
+let device = localStorage.getItem("device_guid")
 
- localStorage.employee = JSON.stringify(data);
- showDashboard(data);
-};
+if(!device){
 
-function showDashboard(emp){
- login.hidden=true;
- dashboard.hidden=false;
- empName.innerText=emp.full_name;
- empPosition.innerText=emp.position;
- loadLogs();
+device = generateGUID()
+localStorage.setItem("device_guid", device)
+
+await supabase
+.from("employees")
+.update({ mobile_device: device })
+.eq("emp_id", emp_id)
+
+}
+
+if(data.mobile_device && data.mobile_device !== device){
+alert("Account registered on another device.")
+return
+}
+
+localStorage.setItem("emp_id", emp_id)
+
+location.href = "dashboard.html"
+
 }
