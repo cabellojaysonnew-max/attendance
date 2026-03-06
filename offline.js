@@ -13,3 +13,9 @@ export function getOffline(){
 return JSON.parse(localStorage.getItem("offline_logs")) || []
 
 }
+
+export function clearOffline(){
+
+localStorage.removeItem("offline_logs")
+
+}
