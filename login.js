@@ -25,19 +25,19 @@ return
 let device = localStorage.getItem("device_guid")
 
 if(!device){
-
 device = generateGUID()
 localStorage.setItem("device_guid", device)
+}
 
+if(!data.mobile_device){
 await supabase
 .from("employees")
 .update({ mobile_device: device })
 .eq("emp_id", emp_id)
-
 }
 
 if(data.mobile_device && data.mobile_device !== device){
-alert("Account registered on another device.")
+alert("Unauthorized device. Contact HR.")
 return
 }
 
