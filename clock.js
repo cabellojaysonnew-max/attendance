@@ -11,6 +11,11 @@ const device = localStorage.getItem("device_guid")
 try{
 
 const gps = await getGPS()
+  
+if(gps.accuracy > 150){
+alert("Weak GPS signal. Move outside and try again.")
+return
+}
 const address = await getLocation(gps.lat,gps.lng)
 
 const today = new Date().toISOString().split("T")[0]
