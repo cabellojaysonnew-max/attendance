@@ -5,16 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DAR Attendance Dashboard</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#006400">
 </head>
 <body>
+
 <div class="container">
+
 <h1>DAR Attendance</h1>
 <h2 id="empName"></h2>
-<div id="status"></div>
+
 <button id="clockBtn">Clock In / Out</button>
+
 <h3>Today's Logs</h3>
 <div id="logs"></div>
+
 </div>
+
 <script type="module" src="dashboard.js"></script>
+
+<script>
+if ("serviceWorker" in navigator) {
+window.addEventListener("load", () => {
+navigator.serviceWorker.register("./service-worker.js");
+});
+}
+</script>
+
 </body>
 </html>
