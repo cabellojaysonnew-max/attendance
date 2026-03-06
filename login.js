@@ -1,3 +1,4 @@
+
 import { supabase } from "./supabase.js"
 
 function generateGUID(){
@@ -41,7 +42,8 @@ return
 }
 
 localStorage.setItem("emp_id", emp_id)
+localStorage.setItem("emp_name", data.full_name)
 
-location.href = "dashboard.html"
+location.href="dashboard.html"
 
 }

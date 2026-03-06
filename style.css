@@ -1,34 +1,48 @@
+
 body{
 font-family:Arial;
+background:#f4f4f4;
+}
+
+.container{
 max-width:500px;
 margin:auto;
 padding:20px;
 }
 
-input{
-display:block;
-width:100%;
-padding:10px;
-margin-bottom:10px;
+h1{
+color:#006400;
 }
 
 button{
-padding:12px;
 width:100%;
-background:#16a34a;
-color:white;
+padding:12px;
+background:#006400;
+color:#FFD700;
 border:none;
-border-radius:8px;
+border-radius:6px;
 font-size:16px;
+margin-top:10px;
 }
 
-#logs{
-margin-top:20px;
+input{
+width:100%;
+padding:10px;
+margin-bottom:10px;
 }
 
 .log{
-padding:10px;
-border:1px solid #ddd;
-border-radius:6px;
+background:white;
+padding:12px;
 margin-bottom:10px;
+border-radius:6px;
+color:white;
+}
+
+.green{
+background:#006400;
+}
+
+.red{
+background:#8B0000;
 }

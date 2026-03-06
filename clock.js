@@ -1,3 +1,4 @@
+
 import { supabase } from "./supabase.js"
 import { getGPS } from "./gps.js"
 import { getAddress } from "./location.js"
@@ -33,7 +34,7 @@ latitude:gps.lat,
 longitude:gps.lng,
 accuracy:gps.accuracy,
 address:address,
-device_type:"MOBILE_WEB"
+device_id:"MOBILE_WEB"
 
 })
 
