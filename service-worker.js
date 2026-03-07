@@ -1,7 +1,6 @@
+const CACHE_NAME = "dar-attendance-v2";
 
-const CACHE_NAME = "dar-attendance-cache-v1";
-
-const urlsToCache = [
+const FILES = [
 "./",
 "./index.html",
 "./dashboard.html",
@@ -17,18 +16,39 @@ const urlsToCache = [
 ];
 
 self.addEventListener("install", event => {
+
 self.skipWaiting();
+
 event.waitUntil(
-caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+
+caches.open(CACHE_NAME).then(cache => {
+return cache.addAll(FILES);
+})
+
 );
+
 });
 
 self.addEventListener("activate", event => {
+
 event.waitUntil(self.clients.claim());
+
 });
 
 self.addEventListener("fetch", event => {
+
 event.respondWith(
-caches.match(event.request).then(response => response || fetch(event.request))
+
+caches.match(event.request).then(response => {
+
+if(response){
+return response;
+}
+
+return fetch(event.request);
+
+})
+
 );
+
 });
