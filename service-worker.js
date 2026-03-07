@@ -1,11 +1,12 @@
+const CACHE_NAME = "dar-attendance-v2"
 
-const CACHE="dar-attendance-cache-v1"
-
-const FILES=[
+const FILES_TO_CACHE = [
 "./",
 "./index.html",
 "./dashboard.html",
 "./style.css",
+"./manifest.json",
+
 "./login.js",
 "./dashboard.js",
 "./clock.js",
@@ -16,15 +17,87 @@ const FILES=[
 "./supabase.js"
 ]
 
-self.addEventListener("install",e=>{
-self.skipWaiting()
-e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)))
+/* INSTALL */
+
+self.addEventListener("install", event => {
+
+ self.skipWaiting()
+
+ event.waitUntil(
+  caches.open(CACHE_NAME)
+  .then(cache => {
+   return cache.addAll(FILES_TO_CACHE)
+  })
+ )
+
 })
 
-self.addEventListener("activate",e=>{
-e.waitUntil(self.clients.claim())
+
+/* ACTIVATE */
+
+self.addEventListener("activate", event => {
+
+ event.waitUntil(
+
+  caches.keys().then(keys => {
+
+   return Promise.all(
+
+    keys.map(key => {
+
+     if(key !== CACHE_NAME){
+      return caches.delete(key)
+     }
+
+    })
+
+   )
+
+  })
+
+ )
+
+ self.clients.claim()
+
 })
 
-self.addEventListener("fetch",e=>{
-e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))
+
+/* FETCH */
+
+self.addEventListener("fetch", event => {
+
+ event.respondWith(
+
+  caches.match(event.request)
+  .then(cached => {
+
+   if(cached){
+    return cached
+   }
+
+   return fetch(event.request)
+   .then(response => {
+
+    const responseClone = response.clone()
+
+    caches.open(CACHE_NAME)
+    .then(cache => {
+     cache.put(event.request, responseClone)
+    })
+
+    return response
+
+   })
+   .catch(() => {
+
+    if(event.request.mode === "navigate"){
+     return caches.match("./index.html")
+    }
+
+   })
+
+  })
+
+ )
+
 })
