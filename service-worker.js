@@ -1,5 +1,5 @@
 
-const CACHE="dar-attendance-cache"
+const CACHE="dar-attendance-cache-v1"
 
 const FILES=[
 "./",
