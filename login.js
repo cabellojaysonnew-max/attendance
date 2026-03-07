@@ -1,11 +1,10 @@
 
 import { supabase } from "./supabase.js"
+import { getFingerprint } from "./fingerprint.js"
 
-function generateGUID(){
-return crypto.randomUUID()
-}
+function guid(){ return crypto.randomUUID() }
 
-window.login = async function(){
+window.login=async function(){
 
 const emp_id=document.getElementById("emp_id").value
 const pass=document.getElementById("pass").value
@@ -21,15 +20,13 @@ localStorage.setItem("emp_name",cached.full_name)
 
 location.href="dashboard.html"
 return
+}
 
-}else{
-
-alert("Offline login failed. Connect once online.")
+alert("Offline login failed")
 return
-
 }
 
-}
+const fingerprint=await getFingerprint()
 
 const {data,error}=await supabase
 .from("employees")
@@ -38,7 +35,7 @@ const {data,error}=await supabase
 .eq("pass",pass)
 .single()
 
-if(error || !data){
+if(error||!data){
 alert("Invalid login")
 return
 }
@@ -46,18 +43,28 @@ return
 let device=localStorage.getItem("device_guid")
 
 if(!device){
-device=generateGUID()
+device=guid()
 localStorage.setItem("device_guid",device)
-
-await supabase
-.from("employees")
-.update({mobile_device:device})
-.eq("emp_id",emp_id)
 }
 
-if(data.mobile_device && device!==data.mobile_device){
+if(!data.device_guid){
+
+await supabase.from("employees")
+.update({
+device_guid:device,
+device_fp:fingerprint
+})
+.eq("emp_id",emp_id)
+
+}
+
+if(data.device_guid && data.device_fp){
+
+if(data.device_guid!==device || data.device_fp!==fingerprint){
 alert("Unauthorized device")
 return
+}
+
 }
 
 localStorage.setItem("emp_id",emp_id)

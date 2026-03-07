@@ -1,18 +1,7 @@
 
-body{
-font-family:Arial;
-background:#f4f4f4;
-}
-
-.container{
-max-width:500px;
-margin:auto;
-padding:20px;
-}
-
-h1{
-color:#006400;
-}
+body{font-family:Arial;background:#f4f4f4}
+.container{max-width:500px;margin:auto;padding:20px}
+h1{color:#006400}
 
 button{
 width:100%;
@@ -44,10 +33,5 @@ margin-bottom:10px;
 color:white;
 }
 
-.green{
-background:#006400;
-}
-
-.red{
-background:#8B0000;
-}
+.green{background:#006400}
+.red{background:#8B0000}

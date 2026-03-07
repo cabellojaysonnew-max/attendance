@@ -23,7 +23,6 @@ const {data}=await supabase
 .from("attendance_logs")
 .select("*")
 .eq("emp_id",emp_id)
-.eq("device_type","MOBILE_WEB")
 .gte("log_time",today)
 .order("log_time",{ascending:true})
 

@@ -4,8 +4,8 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DAR Attendance</title>
-<link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
 <meta name="theme-color" content="#006400">
 </head>
 
@@ -13,7 +13,7 @@
 
 <div class="container">
 
-<h1>DAR Attendance Login</h1>
+<h1>DAR Field Attendance</h1>
 
 <input id="emp_id" placeholder="Employee Number">
 <input id="pass" type="password" placeholder="Password">
@@ -30,27 +30,20 @@ Install Offline App
 
 <script>
 let deferredPrompt;
-
-const installBtn = document.getElementById("installBtn");
+const installBtn=document.getElementById("installBtn");
 
 window.addEventListener("beforeinstallprompt",(e)=>{
 e.preventDefault();
-deferredPrompt = e;
+deferredPrompt=e;
 installBtn.style.display="block";
 });
 
-installBtn.addEventListener("click", async ()=>{
-
+installBtn.addEventListener("click",async()=>{
 if(!deferredPrompt) return;
-
 deferredPrompt.prompt();
-
 await deferredPrompt.userChoice;
-
 deferredPrompt=null;
-
 installBtn.style.display="none";
-
 });
 
 if("serviceWorker" in navigator){
