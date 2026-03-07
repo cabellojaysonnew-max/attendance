@@ -25,7 +25,7 @@ const g3 = await readGPS()
 
 const accuracy = Math.max(g1.accuracy,g2.accuracy,g3.accuracy)
 
-if(accuracy > 50){
+if(accuracy > 20){
  throw "Weak GPS signal"
 }
 
