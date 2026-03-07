@@ -36,6 +36,7 @@ logs=getOffline()
 }
 
 render(logs)
+
 }
 
 function render(logs){

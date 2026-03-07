@@ -30,15 +30,20 @@ device_type:"MOBILE_WEB"
 }
 
 if(navigator.onLine){
+
 await supabase.from("attendance_logs").insert(log)
+
 }else{
+
 saveOffline(log)
 alert("Saved offline")
+
 }
 
 syncOffline()
 
 location.reload()
+
 }
 
 async function syncOffline(){
@@ -48,7 +53,9 @@ if(!navigator.onLine) return
 const logs=getOffline()
 
 for(let l of logs){
+
 await supabase.from("attendance_logs").insert(l)
+
 }
 
 clearOffline()

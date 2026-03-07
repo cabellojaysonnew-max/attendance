@@ -1,9 +1,11 @@
 
 import { supabase } from "./supabase.js"
 
-function generateGUID(){return crypto.randomUUID()}
+function generateGUID(){
+return crypto.randomUUID()
+}
 
-window.login=async function(){
+window.login = async function(){
 
 const emp_id=document.getElementById("emp_id").value
 const pass=document.getElementById("pass").value
@@ -36,7 +38,7 @@ const {data,error}=await supabase
 .eq("pass",pass)
 .single()
 
-if(error||!data){
+if(error || !data){
 alert("Invalid login")
 return
 }
@@ -68,4 +70,5 @@ full_name:data.full_name
 }))
 
 location.href="dashboard.html"
+
 }

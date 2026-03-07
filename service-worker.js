@@ -1,7 +1,7 @@
 
-const CACHE="dar-cache-v1"
+const CACHE_NAME="dar-attendance-cache-v1";
 
-const ASSETS=[
+const FILES=[
 "./",
 "./index.html",
 "./dashboard.html",
@@ -12,22 +12,30 @@ const ASSETS=[
 "./gps.js",
 "./location.js",
 "./offline.js",
-"./supabase.js"
-]
+"./supabase.js",
+"./manifest.json"
+];
 
-self.addEventListener("install",e=>{
-self.skipWaiting()
-e.waitUntil(
-caches.open(CACHE).then(c=>c.addAll(ASSETS))
-)
-})
+self.addEventListener("install",event=>{
 
-self.addEventListener("activate",e=>{
-e.waitUntil(self.clients.claim())
-})
+self.skipWaiting();
 
-self.addEventListener("fetch",e=>{
-e.respondWith(
-caches.match(e.request).then(r=>r||fetch(e.request))
-)
-})
+event.waitUntil(
+caches.open(CACHE_NAME).then(cache=>cache.addAll(FILES))
+);
+
+});
+
+self.addEventListener("activate",event=>{
+
+event.waitUntil(self.clients.claim());
+
+});
+
+self.addEventListener("fetch",event=>{
+
+event.respondWith(
+caches.match(event.request).then(res=>res||fetch(event.request))
+);
+
+});
