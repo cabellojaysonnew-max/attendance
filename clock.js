@@ -8,10 +8,32 @@ import { syncLogs } from "./sync.js"
 export async function clock(){
 
 const emp_id = localStorage.getItem("emp_id")
+const device = getDevice()
 
 await syncLogs()
 
 const today = new Date().toISOString().split("T")[0]
+
+/* DAILY DEVICE CHECK */
+
+try{
+
+const {data:deviceCheck} = await supabase
+.from("device_daily")
+.select("*")
+.eq("device_id",device)
+.eq("log_date",today)
+
+if(deviceCheck.length > 0 && deviceCheck[0].emp_id !== emp_id){
+
+ alert("This phone is already used by another employee today.")
+ return
+
+}
+
+}catch(e){
+ console.log("Offline - skipping device verification")
+}
 
 let data=[]
 
@@ -65,7 +87,7 @@ const address = await getLocation(gps.lat,gps.lng)
 const log={
  emp_id:emp_id,
  log_time:new Date(),
- device_id:getDevice(),
+ device_id:device,
  latitude:gps.lat,
  longitude:gps.lng,
  accuracy:gps.accuracy,
