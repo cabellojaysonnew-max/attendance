@@ -1,25 +1,10 @@
+
 {
-  "name": "DAR Attendance System",
-  "short_name": "DAR Attendance",
-  "start_url": ".",
-  "scope": ".",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#006400",
-  "description": "DAR Mobile Attendance System with Offline Logging and GPS Verification",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+"name":"DAR Attendance",
+"short_name":"DAR Logs",
+"start_url":".",
+"display":"standalone",
+"background_color":"#ffffff",
+"theme_color":"#006400",
+"scope":"."
 }

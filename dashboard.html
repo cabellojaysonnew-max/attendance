@@ -8,10 +8,10 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#006400">
 </head>
+
 <body>
 
 <div class="container">
-
 <h1>DAR Attendance</h1>
 <h2 id="empName"></h2>
 
@@ -23,14 +23,6 @@
 </div>
 
 <script type="module" src="dashboard.js"></script>
-
-<script>
-if ("serviceWorker" in navigator) {
-window.addEventListener("load", () => {
-navigator.serviceWorker.register("./service-worker.js");
-});
-}
-</script>
 
 </body>
 </html>
