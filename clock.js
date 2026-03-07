@@ -1,4 +1,3 @@
-
 import { supabase } from "./supabase.js"
 import { getGPS } from "./gps.js"
 import { getLocation } from "./location.js"
@@ -25,6 +24,8 @@ if(data && data.length>=4){
  return
 }
 
+const last=data[data.length-1]
+
 let gps
 
 try{
@@ -32,6 +33,21 @@ try{
 }catch(e){
  alert(e)
  return
+}
+
+/* TELEPORT DETECTION */
+
+if(last){
+
+const distance =
+Math.abs(last.latitude - gps.lat) +
+Math.abs(last.longitude - gps.lng)
+
+if(distance > 0.02){
+ alert("Location jump detected")
+ return
+}
+
 }
 
 const address = await getLocation(gps.lat,gps.lng)
