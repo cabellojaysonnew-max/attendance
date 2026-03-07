@@ -1,67 +1,67 @@
-
 import { supabase } from "./supabase.js"
 import { getGPS } from "./gps.js"
 import { getLocation } from "./location.js"
-import { saveOffline,getOffline,clearOffline } from "./offline.js"
 
 export async function clock(){
 
-const emp_id=localStorage.getItem("emp_id")
+const emp_id = localStorage.getItem("emp_id")
 
-const gps=await getGPS()
+const gps = await getGPS()
 
-if(gps.accuracy>150){
+if(!gps){
+alert("GPS not available")
+return
+}
+
+if(gps.accuracy > 150){
 alert("Weak GPS signal")
 return
 }
 
-const address=await getLocation(gps.lat,gps.lng)
+const address = await getLocation(gps.lat,gps.lng)
 
-const log={
-emp_id:emp_id,
-log_time:new Date(),
-latitude:gps.lat,
-longitude:gps.lng,
-accuracy:gps.accuracy,
-address:address,
-place_name:address,
-device_id:"mobile",
-device_type:"MOBILE_WEB"
+const log = {
+
+emp_id: emp_id,
+
+log_time: new Date(),
+
+device_id: "mobile",
+
+latitude: gps.lat,
+
+longitude: gps.lng,
+
+accuracy: gps.accuracy,
+
+address: address,
+
+place_name: address,
+
+device_type: "MOBILE_WEB"
+
 }
 
-if(navigator.onLine){
+console.log("Saving log:", log)
 
-await supabase
+const { data, error } = await supabase
 .from("attendance_logs")
 .insert([log])
 
-}else{
+if(error){
 
-saveOffline(log)
-alert("Saved offline")
+console.log("INSERT ERROR:", error)
+
+alert("Database error: " + error.message)
+
+return
 
 }
 
-syncOffline()
+console.log("Saved:", data)
+
+alert("Clock saved")
 
 location.reload()
-
-}
-
-async function syncOffline(){
-
-if(!navigator.onLine) return
-
-const logs=getOffline()
-
-for(let l of logs){
-
-await supabase
-.from("attendance_logs")
-.insert([l])
-
-}
-
-clearOffline()
 
 }
