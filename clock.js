@@ -17,120 +17,138 @@ function saveLocalLog(log){
 
 export async function clock(){
 
-const emp_id = localStorage.getItem("emp_id")
-const device = getDevice()
+ const emp_id = localStorage.getItem("emp_id")
+ const device = getDevice()
 
-await syncLogs()
+ await syncLogs()
 
-const today = new Date().toISOString().split("T")[0]
+ const today = new Date().toISOString().split("T")[0]
 
-let data = []
+ let logs = []
 
-/* TRY GETTING ONLINE LOGS */
+ /* TRY GET SERVER LOGS */
 
-try{
+ try{
 
-const {data:serverLogs,error} = await supabase
-.from("attendance_logs")
-.select("*")
-.eq("emp_id",emp_id)
-.gte("log_time",today)
+  const {data,error} = await supabase
+  .from("attendance_logs")
+  .select("*")
+  .eq("emp_id",emp_id)
+  .gte("log_time",today)
+  .order("log_time",{ascending:true})
 
-if(!error && serverLogs){
- data = serverLogs
- localStorage.setItem("today_logs",JSON.stringify(serverLogs))
-}
+  if(!error && data){
 
-}catch(e){
+   logs = data
+   localStorage.setItem("today_logs", JSON.stringify(data))
 
-console.log("Offline mode - using local logs")
-data = getLocalLogs()
+  }
 
-}
+ }catch(e){
 
-/* MAXIMUM 4 LOGS */
+  console.log("Offline mode: using local logs")
 
-if(data.length >= 4){
- alert("Maximum logs today")
- return
-}
+  logs = getLocalLogs()
 
-/* GET LAST LOG */
+ }
 
-const last = data[data.length-1]
+ /* STRICT 4 LOG LIMIT */
 
-/* GET GPS */
+ if(logs.length >= 4){
 
-let gps
+  alert("You have already completed today's attendance.")
+  return
 
-try{
- gps = await getGPS()
-}catch(e){
- alert(e)
- return
-}
+ }
 
-/* TELEPORT DETECTION */
+ const sequence = ["CLOCK IN","BREAK OUT","BREAK IN","CLOCK OUT"]
 
-if(last){
+ const status = sequence[logs.length]
 
-const distance =
-Math.abs(last.latitude - gps.lat) +
-Math.abs(last.longitude - gps.lng)
+ /* GET GPS */
 
-if(distance > 0.02){
- alert("Location jump detected")
- return
-}
+ let gps
 
-}
+ try{
+  gps = await getGPS()
+ }catch(e){
+  alert(e)
+  return
+ }
 
-/* GET ADDRESS */
+ /* TELEPORT DETECTION */
 
-let address = "Offline Location"
+ const last = logs[logs.length-1]
 
-try{
- address = await getLocation(gps.lat,gps.lng)
-}catch(e){
- console.log("Offline geocoder")
-}
+ if(last){
 
-/* CREATE LOG */
+  const distance =
+  Math.abs(last.latitude - gps.lat) +
+  Math.abs(last.longitude - gps.lng)
 
-const log={
- emp_id:emp_id,
- log_time:new Date().toISOString(),
- device_id:device,
- latitude:gps.lat,
- longitude:gps.lng,
- accuracy:gps.accuracy,
- address:address,
- place_name:address,
- device_type:"MOBILE_WEB",
- spoof_flag:gps.spoof
-}
+  if(distance > 0.02){
 
-/* SAVE LOCALLY ALWAYS */
+   alert("Location jump detected")
+   return
 
-saveLocalLog(log)
+  }
 
-/* TRY ONLINE SAVE */
+ }
 
-try{
+ /* GET ADDRESS */
 
-const {error} = await supabase
-.from("attendance_logs")
-.insert([log])
+ let address = "Offline Location"
 
-if(error) throw error
+ try{
+  address = await getLocation(gps.lat,gps.lng)
+ }catch(e){
+  console.log("Offline geocoder")
+ }
 
-}catch(e){
+ const log={
 
-saveOffline(log)
-alert("Offline mode: log saved locally")
+  emp_id:emp_id,
+  log_time:new Date().toISOString(),
+  status:status,
 
-}
+  device_id:device,
 
-location.reload()
+  latitude:gps.lat,
+  longitude:gps.lng,
+  accuracy:gps.accuracy,
+
+  address:address,
+  place_name:address,
+
+  device_type:"MOBILE_WEB",
+  spoof_flag:gps.spoof
+
+ }
+
+ /* SAVE LOCAL COPY */
+
+ saveLocalLog(log)
+
+ /* TRY ONLINE SAVE */
+
+ try{
+
+  const {error} = await supabase
+  .from("attendance_logs")
+  .insert([log])
+
+  if(error){
+   throw error
+  }
+
+ }catch(e){
+
+  saveOffline(log)
+
+  alert("Offline mode: log saved locally")
+
+ }
+
+ location.reload()
 
 }
