@@ -1,7 +1,6 @@
 
 import { supabase } from "./supabase.js"
 import { clock } from "./clock.js"
-import { getOffline } from "./offline.js"
 
 const emp_id=localStorage.getItem("emp_id")
 const emp_name=localStorage.getItem("emp_name")
@@ -13,10 +12,6 @@ loadLogs()
 
 async function loadLogs(){
 
-let logs=[]
-
-if(navigator.onLine){
-
 const today=new Date().toISOString().split("T")[0]
 
 const {data}=await supabase
@@ -26,15 +21,7 @@ const {data}=await supabase
 .gte("log_time",today)
 .order("log_time",{ascending:true})
 
-logs=data||[]
-
-}else{
-
-logs=getOffline()
-
-}
-
-render(logs)
+render(data||[])
 
 }
 
@@ -48,7 +35,7 @@ let color=(index%2===0)?"green":"red"
 
 html+=`<div class="log ${color}">
 ${new Date(log.log_time).toLocaleTimeString()}<br>
-${log.address}
+${log.place_name||log.address}
 </div>`
 
 })

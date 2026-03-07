@@ -12,7 +12,6 @@ const FILES=[
 "./gps.js",
 "./location.js",
 "./offline.js",
-"./fingerprint.js",
 "./supabase.js"
 ]
 
