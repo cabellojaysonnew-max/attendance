@@ -7,24 +7,34 @@ import { syncLogs } from "./sync.js"
 
 export async function clock(){
 
-const emp_id=localStorage.getItem("emp_id")
+const emp_id = localStorage.getItem("emp_id")
 
 await syncLogs()
 
-const today=new Date().toISOString().split("T")[0]
+const today = new Date().toISOString().split("T")[0]
 
-const {data}=await supabase
+let data=[]
+
+try{
+
+const res = await supabase
 .from("attendance_logs")
 .select("*")
 .eq("emp_id",emp_id)
 .gte("log_time",today)
 
-if(data && data.length>=4){
+data = res.data || []
+
+}catch(e){
+data=[]
+}
+
+if(data && data.length >= 4){
  alert("Maximum logs today")
  return
 }
 
-const last=data[data.length-1]
+const last = data[data.length-1]
 
 let gps
 
@@ -65,21 +75,22 @@ const log={
  spoof_flag:gps.spoof
 }
 
-if(navigator.onLine){
+/* TRY ONLINE FIRST */
 
-const {error}=await supabase
+try{
+
+const {error} = await supabase
 .from("attendance_logs")
 .insert([log])
 
 if(error){
- alert(error.message)
- return
+ throw error
 }
 
-}else{
+}catch(e){
 
 saveOffline(log)
-alert("Saved offline")
+alert("Offline mode: log saved locally")
 
 }
 
