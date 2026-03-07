@@ -1,15 +1,15 @@
 export function getDevice(){
 
+const w = Math.max(screen.width,screen.height)
+const h = Math.min(screen.width,screen.height)
+
 const fingerprint = [
-navigator.userAgent,
 navigator.platform,
-screen.width,
-screen.height,
-screen.colorDepth,
-navigator.language,
-Intl.DateTimeFormat().resolvedOptions().timeZone,
-navigator.hardwareConcurrency,
-navigator.deviceMemory || "na"
+w,
+h,
+navigator.hardwareConcurrency || "0",
+navigator.deviceMemory || "0",
+Intl.DateTimeFormat().resolvedOptions().timeZone
 ].join("|")
 
 return hashString(fingerprint)
