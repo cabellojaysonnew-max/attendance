@@ -5,6 +5,16 @@ import { getDevice } from "./device.js"
 import { saveOffline } from "./offline.js"
 import { syncLogs } from "./sync.js"
 
+function getLocalLogs(){
+ return JSON.parse(localStorage.getItem("today_logs")) || []
+}
+
+function saveLocalLog(log){
+ let logs = getLocalLogs()
+ logs.push(log)
+ localStorage.setItem("today_logs", JSON.stringify(logs))
+}
+
 export async function clock(){
 
 const emp_id = localStorage.getItem("emp_id")
@@ -14,49 +24,42 @@ await syncLogs()
 
 const today = new Date().toISOString().split("T")[0]
 
-/* DAILY DEVICE CHECK */
+let data = []
+
+/* TRY GETTING ONLINE LOGS */
 
 try{
 
-const {data:deviceCheck} = await supabase
-.from("device_daily")
-.select("*")
-.eq("device_id",device)
-.eq("log_date",today)
-
-if(deviceCheck.length > 0 && deviceCheck[0].emp_id !== emp_id){
-
- alert("This phone is already used by another employee today.")
- return
-
-}
-
-}catch(e){
- console.log("Offline - skipping device verification")
-}
-
-let data=[]
-
-try{
-
-const res = await supabase
+const {data:serverLogs,error} = await supabase
 .from("attendance_logs")
 .select("*")
 .eq("emp_id",emp_id)
 .gte("log_time",today)
 
-data = res.data || []
-
-}catch(e){
-data=[]
+if(!error && serverLogs){
+ data = serverLogs
+ localStorage.setItem("today_logs",JSON.stringify(serverLogs))
 }
 
-if(data && data.length >= 4){
+}catch(e){
+
+console.log("Offline mode - using local logs")
+data = getLocalLogs()
+
+}
+
+/* MAXIMUM 4 LOGS */
+
+if(data.length >= 4){
  alert("Maximum logs today")
  return
 }
 
+/* GET LAST LOG */
+
 const last = data[data.length-1]
+
+/* GET GPS */
 
 let gps
 
@@ -82,11 +85,21 @@ if(distance > 0.02){
 
 }
 
-const address = await getLocation(gps.lat,gps.lng)
+/* GET ADDRESS */
+
+let address = "Offline Location"
+
+try{
+ address = await getLocation(gps.lat,gps.lng)
+}catch(e){
+ console.log("Offline geocoder")
+}
+
+/* CREATE LOG */
 
 const log={
  emp_id:emp_id,
- log_time:new Date(),
+ log_time:new Date().toISOString(),
  device_id:device,
  latitude:gps.lat,
  longitude:gps.lng,
@@ -97,7 +110,11 @@ const log={
  spoof_flag:gps.spoof
 }
 
-/* TRY ONLINE FIRST */
+/* SAVE LOCALLY ALWAYS */
+
+saveLocalLog(log)
+
+/* TRY ONLINE SAVE */
 
 try{
 
@@ -105,9 +122,7 @@ const {error} = await supabase
 .from("attendance_logs")
 .insert([log])
 
-if(error){
- throw error
-}
+if(error) throw error
 
 }catch(e){
 
