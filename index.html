@@ -9,6 +9,16 @@
 <meta name="theme-color" content="#006400">
 </head>
 
+<script>
+
+if ("serviceWorker" in navigator) {
+ navigator.serviceWorker.register("service-worker.js")
+ .then(()=>console.log("Service Worker Registered"))
+ .catch(err=>console.log("SW Error",err))
+}
+
+</script>
+ 
 <body>
 <div class="container">
 
