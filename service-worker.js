@@ -12,6 +12,7 @@ const FILES=[
 "./gps.js",
 "./location.js",
 "./offline.js",
+"./sync.js",
 "./supabase.js"
 ]
 

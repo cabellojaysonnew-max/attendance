@@ -1,8 +1,10 @@
 
 export function saveOffline(log){
 
-let logs=JSON.parse(localStorage.getItem("offline_logs"))||[]
+let logs = JSON.parse(localStorage.getItem("offline_logs"))||[]
+
 logs.push(log)
+
 localStorage.setItem("offline_logs",JSON.stringify(logs))
 
 }

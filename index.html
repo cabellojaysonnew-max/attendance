@@ -19,43 +19,20 @@
 
 <button onclick="login()">Login</button>
 
-<button id="installBtn" class="install" style="display:none">
-Install Offline App
-</button>
-
 </div>
 
 <script type="module" src="login.js"></script>
 
 <script>
-let deferredPrompt;
-const installBtn=document.getElementById("installBtn");
-
-window.addEventListener("beforeinstallprompt",(e)=>{
-e.preventDefault();
-deferredPrompt=e;
-installBtn.style.display="block";
-});
-
-installBtn.addEventListener("click",async()=>{
-if(!deferredPrompt) return;
-deferredPrompt.prompt();
-await deferredPrompt.userChoice;
-deferredPrompt=null;
-installBtn.style.display="none";
-});
-
-if("serviceWorker" in navigator){
-navigator.serviceWorker.register("./service-worker.js");
-}
-</script>
-  
-<script>
 const emp = localStorage.getItem("emp_id")
+const exp = localStorage.getItem("session_expire")
 
-if(emp){
-location.href = "dashboard.html"
+if(emp && exp){
+ if(Date.now() < exp){
+   location.href="dashboard.html"
+ }
 }
 </script>
+
 </body>
 </html>
