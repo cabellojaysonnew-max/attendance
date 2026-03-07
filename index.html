@@ -1,25 +1,19 @@
-
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DAR Attendance</title>
+
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
+
 <meta name="theme-color" content="#006400">
+
 </head>
 
-<script>
-
-if ("serviceWorker" in navigator) {
- navigator.serviceWorker.register("service-worker.js")
- .then(()=>console.log("Service Worker Registered"))
- .catch(err=>console.log("SW Error",err))
-}
-
-</script>
- 
 <body>
+
 <div class="container">
 
 <h1>DAR Attendance</h1>
@@ -31,25 +25,64 @@ if ("serviceWorker" in navigator) {
 
 </div>
 
-<script type="module" src="login.js"></script>
- <script>
 
-if(!window.matchMedia('(display-mode: standalone)').matches){
- alert("Please install the DAR Attendance app on your phone for security.")
+<!-- LOGIN SCRIPT -->
+<script type="module" src="login.js"></script>
+
+
+<!-- SERVICE WORKER -->
+<script>
+
+if ("serviceWorker" in navigator) {
+
+ navigator.serviceWorker.register("service-worker.js")
+ .then(()=>console.log("Service Worker Registered"))
+ .catch(err=>console.log("SW Error",err))
+
 }
 
 </script>
 
+
+<!-- PWA INSTALL REMINDER -->
 <script>
+
+if(!window.matchMedia('(display-mode: standalone)').matches){
+
+ alert("Please install the DAR Attendance app on your phone for security.")
+
+}
+
+</script>
+
+
+<!-- SESSION CHECK -->
+<script>
+
 const emp = localStorage.getItem("emp_id")
 const exp = localStorage.getItem("session_expire")
 
 if(emp && exp){
- if(Date.now() < exp){
-   location.href="dashboard.html"
- }
+
+const expire = parseInt(exp)
+
+if(Date.now() < expire){
+
+ location.href="dashboard.html"
+
+}else{
+
+ // clear expired session
+ localStorage.removeItem("emp_id")
+ localStorage.removeItem("emp_name")
+ localStorage.removeItem("session_expire")
+
 }
+
+}
+
 </script>
+
 
 </body>
 </html>
