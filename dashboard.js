@@ -45,15 +45,22 @@ document.getElementById("logs").innerHTML=html
 
 /* -------- DEVTOOLS DETECTION -------- */
 
+/* DEVTOOLS DETECTION (DESKTOP ONLY) */
+
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+if(!isMobile){
+
 setInterval(()=>{
 
-const devtoolsOpen =
-window.outerWidth - window.innerWidth > 160 ||
-window.outerHeight - window.innerHeight > 160
+const widthDiff = window.outerWidth - window.innerWidth
+const heightDiff = window.outerHeight - window.innerHeight
 
-if(devtoolsOpen){
+if(widthDiff > 200 || heightDiff > 200){
  alert("Developer tools detected")
  location.href="index.html"
 }
 
-},1000)
+},2000)
+
+}
