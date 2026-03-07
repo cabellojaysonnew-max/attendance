@@ -1,23 +1,31 @@
 export function getDevice(){
 
-let device = localStorage.getItem("device_guid")
+const fingerprint = [
+navigator.userAgent,
+navigator.platform,
+screen.width,
+screen.height,
+screen.colorDepth,
+navigator.language,
+Intl.DateTimeFormat().resolvedOptions().timeZone,
+navigator.hardwareConcurrency,
+navigator.deviceMemory || "na"
+].join("|")
 
-if(!device){
-
-const fingerprint =
-navigator.userAgent +
-navigator.platform +
-screen.width + "x" + screen.height +
-Intl.DateTimeFormat().resolvedOptions().timeZone
-
-const encoded = btoa(fingerprint)
-
-device = crypto.randomUUID() + "-" + encoded
-
-localStorage.setItem("device_guid",device)
+return hashString(fingerprint)
 
 }
 
-return device
+function hashString(str){
+
+let hash = 0
+
+for(let i = 0; i < str.length; i++){
+const char = str.charCodeAt(i)
+hash = ((hash << 5) - hash) + char
+hash |= 0
+}
+
+return "dev_" + Math.abs(hash)
 
 }
