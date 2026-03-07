@@ -49,6 +49,13 @@ if("serviceWorker" in navigator){
 navigator.serviceWorker.register("./service-worker.js");
 }
 </script>
+  
+<script>
+const emp = localStorage.getItem("emp_id")
 
+if(emp){
+location.href = "dashboard.html"
+}
+</script>
 </body>
 </html>
