@@ -12,7 +12,6 @@ if(!emp_id){
  location.replace("index.html")
 }
 
-
 /* ---------------- SINGLE TAB PROTECTION ---------------- */
 
 if(localStorage.getItem("dar_attendance_active_tab")){
@@ -26,21 +25,39 @@ window.addEventListener("beforeunload",()=>{
  localStorage.removeItem("dar_attendance_active_tab")
 })
 
-
 /* ---------------- DISPLAY USER ---------------- */
 
 document.getElementById("empName").innerText = emp_name
-
 
 /* ---------------- CLOCK BUTTON ---------------- */
 
 document.getElementById("clockBtn").onclick = clock
 
+/* ---------------- MIDNIGHT RESET ---------------- */
+
+function resetIfNewDay(){
+
+ const today = new Date().toISOString().split("T")[0]
+ const savedDate = localStorage.getItem("attendance_date")
+
+ if(savedDate !== today){
+
+  localStorage.setItem("attendance_date", today)
+
+  localStorage.removeItem("today_logs")
+  localStorage.removeItem("offline_logs")
+
+  console.log("New day detected — local logs reset")
+
+ }
+
+}
+
+resetIfNewDay()
 
 /* ---------------- INITIAL LOAD ---------------- */
 
 loadLogs()
-
 
 /* ---------------- LOAD TODAY LOGS ---------------- */
 
@@ -83,7 +100,6 @@ render(logs)
 
 }
 
-
 /* ---------------- RENDER LOGS ---------------- */
 
 function render(logs){
@@ -107,7 +123,6 @@ document.getElementById("logs").innerHTML=html
 
 }
 
-
 /* ---------------- SYNC WHEN INTERNET RETURNS ---------------- */
 
 window.addEventListener("online",async ()=>{
@@ -119,7 +134,6 @@ await syncLogs()
 loadLogs()
 
 })
-
 
 /* ---------------- AUTO SYNC EVERY 10 MINUTES ---------------- */
 
@@ -135,8 +149,7 @@ if(navigator.onLine){
 
 }
 
-},600000) // 10 minutes
-
+},600000)
 
 /* ---------------- DEVTOOLS DETECTION (DESKTOP ONLY) ---------------- */
 
