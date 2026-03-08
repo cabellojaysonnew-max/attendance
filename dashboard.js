@@ -3,26 +3,44 @@ import { clock } from "./clock.js"
 import { getOffline } from "./offline.js"
 import { syncLogs } from "./sync.js"
 
+/* ---------------- HARD SESSION PROTECTION ---------------- */
+
 const emp_id = localStorage.getItem("emp_id")
 const emp_name = localStorage.getItem("emp_name")
 
-/* REDIRECT IF NOT LOGGED IN */
-
 if(!emp_id){
- location.href="index.html"
+ location.replace("index.html")
 }
 
-/* DISPLAY USER NAME */
+
+/* ---------------- SINGLE TAB PROTECTION ---------------- */
+
+if(localStorage.getItem("dar_attendance_active_tab")){
+ alert("Attendance system already open in another tab.")
+ location.replace("index.html")
+}
+
+localStorage.setItem("dar_attendance_active_tab","active")
+
+window.addEventListener("beforeunload",()=>{
+ localStorage.removeItem("dar_attendance_active_tab")
+})
+
+
+/* ---------------- DISPLAY USER ---------------- */
 
 document.getElementById("empName").innerText = emp_name
 
-/* CLOCK BUTTON */
+
+/* ---------------- CLOCK BUTTON ---------------- */
 
 document.getElementById("clockBtn").onclick = clock
 
-/* INITIAL LOAD */
+
+/* ---------------- INITIAL LOAD ---------------- */
 
 loadLogs()
+
 
 /* ---------------- LOAD TODAY LOGS ---------------- */
 
@@ -30,7 +48,7 @@ async function loadLogs(){
 
 const today = new Date().toISOString().split("T")[0]
 
-let logs = []
+let logs=[]
 
 try{
 
@@ -42,28 +60,29 @@ const {data,error} = await supabase
 .order("log_time",{ascending:true})
 
 if(!error && data){
- logs = data
+ logs=data
 }
 
 }catch(e){
 
-console.log("Offline mode")
+ console.log("Offline mode")
 
 }
 
 /* ADD OFFLINE LOGS */
 
-const offline = getOffline()
+const offline=getOffline()
 
-logs = logs.concat(offline)
+logs=logs.concat(offline)
 
-/* SORT LOGS */
+/* SORT */
 
-logs.sort((a,b)=> new Date(a.log_time) - new Date(b.log_time))
+logs.sort((a,b)=> new Date(a.log_time)-new Date(b.log_time))
 
 render(logs)
 
 }
+
 
 /* ---------------- RENDER LOGS ---------------- */
 
@@ -84,13 +103,14 @@ ${log.place_name || log.address || "Location unavailable"}
 
 })
 
-document.getElementById("logs").innerHTML = html
+document.getElementById("logs").innerHTML=html
 
 }
 
-/* -------- AUTO SYNC WHEN INTERNET RETURNS -------- */
 
-window.addEventListener("online", async ()=>{
+/* ---------------- SYNC WHEN INTERNET RETURNS ---------------- */
+
+window.addEventListener("online",async ()=>{
 
 console.log("Internet detected — syncing logs")
 
@@ -100,13 +120,14 @@ loadLogs()
 
 })
 
-/* -------- AUTO SYNC EVERY 10 MINUTES -------- */
+
+/* ---------------- AUTO SYNC EVERY 10 MINUTES ---------------- */
 
 setInterval(async ()=>{
 
 if(navigator.onLine){
 
- console.log("Running 10-minute auto sync")
+ console.log("Running 10-minute sync")
 
  await syncLogs()
 
@@ -117,22 +138,22 @@ if(navigator.onLine){
 },600000) // 10 minutes
 
 
-/* -------- DEVTOOLS DETECTION (DESKTOP ONLY) -------- */
+/* ---------------- DEVTOOLS DETECTION (DESKTOP ONLY) ---------------- */
 
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
 
 if(!isMobile){
 
 setInterval(()=>{
 
-const widthDiff = window.outerWidth - window.innerWidth
-const heightDiff = window.outerHeight - window.innerHeight
+const widthDiff=window.outerWidth-window.innerWidth
+const heightDiff=window.outerHeight-window.innerHeight
 
-if(widthDiff > 200 || heightDiff > 200){
+if(widthDiff>200 || heightDiff>200){
 
  alert("Developer tools detected")
 
- location.href="index.html"
+ location.replace("index.html")
 
 }
 
