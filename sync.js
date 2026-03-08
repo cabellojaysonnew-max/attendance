@@ -1,21 +1,51 @@
-
 import { supabase } from "./supabase.js"
-import { getOffline,clearOffline } from "./offline.js"
+import { getOffline, clearOffline } from "./offline.js"
 
 export async function syncLogs(){
 
 if(!navigator.onLine) return
 
-const logs=getOffline()
+const logs = getOffline()
 
-for(let l of logs){
+if(!logs || logs.length === 0) return
 
-await supabase
-.from("attendance_logs")
-.insert([l])
+let uploaded = []
+
+for(let log of logs){
+
+ try{
+
+  const { error } = await supabase
+  .from("attendance_logs")
+  .insert([log])
+
+  if(error){
+   console.log("Upload failed:", error.message)
+   continue
+  }
+
+  uploaded.push(log)
+
+ }catch(e){
+
+  console.log("Sync error:", e.message)
+
+ }
 
 }
 
-clearOffline()
+/* remove only successfully uploaded logs */
+
+if(uploaded.length > 0){
+
+ const remaining = logs.filter(l => !uploaded.includes(l))
+
+ if(remaining.length > 0){
+  localStorage.setItem("offline_logs", JSON.stringify(remaining))
+ }else{
+  clearOffline()
+ }
+
+}
 
 }
