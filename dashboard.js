@@ -6,10 +6,25 @@ import { syncLogs } from "./sync.js"
 const emp_id = localStorage.getItem("emp_id")
 const emp_name = localStorage.getItem("emp_name")
 
+/* REDIRECT IF NOT LOGGED IN */
+
+if(!emp_id){
+ location.href="index.html"
+}
+
+/* DISPLAY USER NAME */
+
 document.getElementById("empName").innerText = emp_name
+
+/* CLOCK BUTTON */
+
 document.getElementById("clockBtn").onclick = clock
 
+/* INITIAL LOAD */
+
 loadLogs()
+
+/* ---------------- LOAD TODAY LOGS ---------------- */
 
 async function loadLogs(){
 
@@ -19,14 +34,16 @@ let logs = []
 
 try{
 
-const {data} = await supabase
+const {data,error} = await supabase
 .from("attendance_logs")
 .select("*")
 .eq("emp_id",emp_id)
 .gte("log_time",today)
 .order("log_time",{ascending:true})
 
-logs = data || []
+if(!error && data){
+ logs = data
+}
 
 }catch(e){
 
@@ -40,11 +57,15 @@ const offline = getOffline()
 
 logs = logs.concat(offline)
 
+/* SORT LOGS */
+
 logs.sort((a,b)=> new Date(a.log_time) - new Date(b.log_time))
 
 render(logs)
 
 }
+
+/* ---------------- RENDER LOGS ---------------- */
 
 function render(logs){
 
@@ -54,26 +75,47 @@ logs.forEach((log,index)=>{
 
 let color=(index%2===0)?"green":"red"
 
-html+=`<div class="log ${color}">
+html+=`
+<div class="log ${color}">
 ${new Date(log.log_time).toLocaleTimeString()}<br>
-${log.place_name||log.address}
-</div>`
+${log.place_name || log.address || "Location unavailable"}
+</div>
+`
 
 })
 
-document.getElementById("logs").innerHTML=html
+document.getElementById("logs").innerHTML = html
 
 }
 
 /* -------- AUTO SYNC WHEN INTERNET RETURNS -------- */
 
-window.addEventListener("online",async ()=>{
+window.addEventListener("online", async ()=>{
+
+console.log("Internet detected — syncing logs")
 
 await syncLogs()
 
 loadLogs()
 
 })
+
+/* -------- AUTO SYNC EVERY 10 MINUTES -------- */
+
+setInterval(async ()=>{
+
+if(navigator.onLine){
+
+ console.log("Running 10-minute auto sync")
+
+ await syncLogs()
+
+ loadLogs()
+
+}
+
+},600000) // 10 minutes
+
 
 /* -------- DEVTOOLS DETECTION (DESKTOP ONLY) -------- */
 
@@ -87,8 +129,11 @@ const widthDiff = window.outerWidth - window.innerWidth
 const heightDiff = window.outerHeight - window.innerHeight
 
 if(widthDiff > 200 || heightDiff > 200){
+
  alert("Developer tools detected")
+
  location.href="index.html"
+
 }
 
 },2000)
