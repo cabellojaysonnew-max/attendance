@@ -1,4 +1,4 @@
-const CACHE_NAME = "dar-attendance-v3"
+const CACHE_NAME = "dar-attendance-v4"
 
 const FILES_TO_CACHE = [
 "./",
@@ -37,17 +37,22 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
 
  event.waitUntil(
+
   caches.keys().then(keys => {
 
    return Promise.all(
     keys.map(key => {
+
      if(key !== CACHE_NAME){
       return caches.delete(key)
      }
+
     })
+
    )
 
   })
+
  )
 
  self.clients.claim()
@@ -61,7 +66,7 @@ self.addEventListener("fetch", event => {
 
  const url = new URL(event.request.url)
 
- /* DO NOT CACHE API REQUESTS (SUPABASE) */
+ /* DO NOT CACHE SUPABASE API */
 
  if(url.hostname.includes("supabase")){
   return
@@ -69,16 +74,19 @@ self.addEventListener("fetch", event => {
 
  event.respondWith(
 
-  caches.match(event.request)
-  .then(cached => {
+  fetch(event.request)
+  .then(response => {
 
-   if(cached){
-    return cached
-   }
+   const clone = response.clone()
 
-   return fetch(event.request)
+   caches.open(CACHE_NAME).then(cache=>{
+    cache.put(event.request, clone)
+   })
+
+   return response
 
   })
+  .catch(()=> caches.match(event.request))
 
  )
 
